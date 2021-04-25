@@ -92,6 +92,10 @@ public class WatchHM implements IWatch{
         }
     }
 
+    //public void subscribe(WatchEvent e) {
+    //    events.subscribe(e);
+    //}
+
     public void turnOffAlarmClock(int number) {
         events.unsubscribe(alarmClocks.get(number));
         alarmClocks.remove(number);

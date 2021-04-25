@@ -5,6 +5,10 @@ import Watch.IWatch;
 import WatchManager.*;
 import Exceptions.WrongInput;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 public class AlarmClock implements WatchEvent {
     int hours;
     int minutes;
@@ -26,23 +30,21 @@ public class AlarmClock implements WatchEvent {
         }
         this.hours = hours;
         this.minutes = minutes;
-        triggered = false;
     }
 
     public boolean isTriggered(int hours, int minutes) {
-        if(triggered || minutes == this.minutes && hours == this.hours ) {
+        if(!triggered && minutes == this.minutes && hours == this.hours) {
+            triggered = true;
             return true;
         }
         return false;
     }
 
     public void event(IWatch w) {
-        if(triggered || w.getMinutes() == minutes && w.getHours() == hours ) {
-            //triggered = true;
+        if(w.getMinutes() == minutes && w.getHours() == hours ) {
+
         }
     }
-
-    public void turnOffAlarm() {triggered = false;}
 
     @Override
     public String toString() {

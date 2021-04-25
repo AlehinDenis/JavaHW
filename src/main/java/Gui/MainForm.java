@@ -1,9 +1,10 @@
 package Gui;
 
 import AlarmClock.AlarmClock;
-import Exceptions.Unsupported;
-import Watch.*;
-import WatchManager.WatchEvent;
+import Exceptions.WrongInput;
+import Server.Msg;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -11,11 +12,24 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.Vector;
 
-public class MainForm extends JFrame implements WatchEvent {
-    WatchHmManager watchHm = new WatchHmManager(12, 0);
-    WatchHmsManager watchHms = new WatchHmsManager(12,0,55);
+public class MainForm extends JFrame{
+    Socket cs;
+    DataInputStream is;
+    DataOutputStream os;
+    int port = 3124;
+    InetAddress host;
+    Thread t;
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Vector<AlarmClock> alarms = new Vector<AlarmClock>();
+
+
     private JPanel panelMain;
     private JTable tblAlarms;
     private JButton btnStartWatch;
@@ -24,106 +38,72 @@ public class MainForm extends JFrame implements WatchEvent {
     private JLabel lblWatchHM;
     private JLabel lblWatchHMS;
     private JLabel lblAlarmsHms;
-    private JLabel lblAlarmsHm;
-    private JTable tblAlarmsHm;
-    private JButton a1MinButton;
-    private JButton a1HourButton;
-    private JButton a10secButton;
-    private JButton a1minButtonHMS;
-    private JButton a1hourButtonHMS;
-    private JLabel lblMoveClock;
+    private JTextField textField1;
+    private JTextField textField2;
+    private JButton btnAddAlarm;
+    private JLabel lblAddAlrm;
     Thread showMessageThread = null;
 
-    final Integer[] response = {-1};
-    public void event(IWatch w) {
-        try {
-            lblWatchHMS.setText(w.getHours() +
-                    ":" + w.getMinutes() + ":" + w.getSeconds());
-        } catch (Unsupported unsupported) {
-            lblWatchHM.setText(w.getHours() +
-                    ":" + w.getMinutes());
-        }
-        Vector<AlarmClock> alarmsHm = watchHm.getAlarms();
-        Vector<AlarmClock> alarmsHms = watchHms.getAlarms();
-        UIManager.put("OptionPane.okButtonText", "Выключить");
-        for(int i = 0; i < alarmsHm.size(); i++) {
-            if(alarmsHm.get(i).isTriggered(w.getHours(),w.getMinutes())) {
-                if(showMessageThread == null) {
-                    showMessageThread = new Thread(new Runnable() {
-                        public void run() {
-                            response[0] = JOptionPane.showConfirmDialog(null,
-                                    "Будильник сработал", "Будильник", JOptionPane.DEFAULT_OPTION);
-                        }
-                    });
-                    showMessageThread.start();
-                    alarmsHms.get(i).turnOffAlarm();
-                }
-            }
-        }
-
-        for(int i = 0; i < alarmsHms.size(); i++) {
-            if(alarmsHms.get(i).isTriggered(w.getHours(),w.getMinutes())) {
-                if(showMessageThread == null) {
-                    showMessageThread = new Thread(new Runnable() {
-                        public void run() {
-                            response[0] = JOptionPane.showConfirmDialog(null,
-                                    "Будильник сработал", "Будильник", JOptionPane.DEFAULT_OPTION);
-                        }
-                    });
-                    showMessageThread.start();
-                    alarmsHms.get(i).turnOffAlarm();
-                }
-            }
-        }
-    }
-
     {
-        lblWatchHM.setText(watchHm.toString());
-        lblWatchHMS.setText(watchHms.toString());
         lblWatchHM.setFont(new Font("Serif", Font.BOLD, 30));
         lblWatchHMS.setFont(new Font("Serif", Font.BOLD, 30));
-        lblAlarmsHm.setFont(new Font("Serif", Font.BOLD, 25));
         lblAlarmsHms.setFont(new Font("Serif", Font.BOLD, 25));
-        lblMoveClock.setFont(new Font("Serif", Font.BOLD, 30));
+        lblAddAlrm.setFont(new Font("Serif", Font.BOLD, 25));
+        lblWatchHM.setText("12:0");
+        lblWatchHMS.setText("12:0:0");
     }
 
     public void initialize() {
-        watchHm.subscribe(this);
-        watchHms.subscribe(this);
-        watchHm.addAlarmClock(7, 40);
-        watchHm.addAlarmClock(7, 50);
-        watchHm.addAlarmClock(8, 0);
-        watchHm.addAlarmClock(8, 30);
-        watchHms.addAlarmClock(12, 1);
-        watchHms.addAlarmClock(12, 2);
-        watchHms.addAlarmClock(12, 30);
-        watchHms.addAlarmClock(13, 0);
+        try {
+            host = InetAddress.getLocalHost();
+            final Socket cs = new Socket(host, port);
+            is = new DataInputStream(cs.getInputStream());
+            os = new DataOutputStream(cs.getOutputStream());
 
-        Vector<AlarmClock> alarms = watchHm.getAlarms();
-        DefaultTableModel modelHms = new DefaultTableModel();
-        String columns[]={"Alarms"};
-        modelHms.setColumnIdentifiers(columns);
-        Object[] row = new Object[1];
-        for(int i = 0; i < alarms.size(); i++) {
-            row[0] = alarms.get(i).getHours() + ":";
-            if(alarms.get(i).getMinutes() < 10) {
-                row[0] += "0" + alarms.get(i).getMinutes();
-            } else {
-                row[0] += "" + alarms.get(i).getMinutes();
-            }
+            t = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        is = new DataInputStream(cs.getInputStream());
+                        os = new DataOutputStream(cs.getOutputStream());
+                        while(true) {
+                            String obj = is.readUTF();
+                            Msg msg = gson.fromJson(obj, Msg.class);
+                            if(msg.getCommand().equals("time")) {
+                                alarms = msg.getAlarms();
+                                printAlarms();
+                                lblWatchHM.setText(msg.getTime().substring(0, msg.getTime().lastIndexOf(':')));
+                                lblWatchHMS.setText(msg.getTime());
+                            } else if(msg.getCommand().equals("alarm")) {
+                                if(showMessageThread == null) {
+                                    showMessageThread = new Thread(new Runnable() {
+                                        public void run() {
+                                            JOptionPane.showConfirmDialog(null,
+                                                    "Будильник сработал", "Будильник", JOptionPane.DEFAULT_OPTION);
+                                            showMessageThread = null;
+                                        }
+                                    });
+                                    showMessageThread.start();
+                                }
+                            }
 
-            modelHms.addRow(row);
+                        }
+                    } catch (IOException exception) {
+                        exception.printStackTrace();
+                    }
+                }
+            };
+            t.start();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
+    }
 
-        tblAlarmsHm.setRowHeight(40);
-        tblAlarmsHm.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        tblAlarmsHm.setFont(new Font("Serif", Font.PLAIN, 20));
-        tblAlarmsHm.setModel(modelHms);
-
-
+    private void printAlarms() {
+        String columns[]={"Alarms"};
+        Object[] row = new Object[1];
         DefaultTableModel modelHm = new DefaultTableModel();
         modelHm.setColumnIdentifiers(columns);
-        alarms = watchHms.getAlarms();
         for(int i = 0; i < alarms.size(); i++) {
             row[0] = alarms.get(i).getHours() + ":";
             if(alarms.get(i).getMinutes() < 10) {
@@ -144,52 +124,58 @@ public class MainForm extends JFrame implements WatchEvent {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         tblAlarms.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        tblAlarmsHm.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
     }
+
 
     public MainForm() {
         initialize();
         btnStartWatch.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                watchHm.start();
-                watchHms.start();
+                Msg msg = new Msg("start");
+                try {
+                    os.writeUTF(gson.toJson(msg));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
         });
         btnPauseWatch.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                watchHm.pause();
-                watchHms.pause();
+                Msg msg = new Msg("pause");
+                try {
+                    os.writeUTF(gson.toJson(msg));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
         });
         btnResumeWatch.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                watchHm.resume();
-                watchHms.resume();
+                Msg msg = new Msg("resume");
+                try {
+                    os.writeUTF(gson.toJson(msg));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
         });
-        a1MinButton.addActionListener(new ActionListener() {
+        btnAddAlarm.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                watchHm.timeForward(0,1);
-            }
-        });
-        a1HourButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                watchHm.timeForward(1,0);
-            }
-        });
-        a10secButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                watchHms.timeForward(0,0,10);
-            }
-        });
-        a1minButtonHMS.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                watchHms.timeForward(0,1,0);
-            }
-        });
-        a1hourButtonHMS.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                watchHms.timeForward(1,0,0);
+                Msg msg = new Msg("alarm",
+                        textField1.getText(),
+                        textField2.getText());
+                try {
+                    alarms.add(new AlarmClock(Integer.parseInt(textField1.getText()),
+                            Integer.parseInt(textField2.getText())));
+                    printAlarms();
+                } catch (WrongInput wrongInput) {
+                    wrongInput.printStackTrace();
+                }
+                try {
+                    os.writeUTF(gson.toJson(msg));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
             }
         });
     }

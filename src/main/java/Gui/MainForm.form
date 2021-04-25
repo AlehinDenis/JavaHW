@@ -1,24 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Gui.MainForm">
-  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="17" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="panelMain" layout-manager="GridLayoutManager" row-count="18" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="19" y="20" width="700" height="484"/>
+      <xy x="19" y="20" width="700" height="474"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <component id="5c601" class="javax.swing.JLabel" binding="lblWatchHMS">
-        <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value=""/>
-        </properties>
-      </component>
       <component id="a429e" class="javax.swing.JTable" binding="tblAlarms">
         <constraints>
-          <grid row="2" column="1" row-span="15" col-span="1" vsize-policy="6" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+          <grid row="2" column="0" row-span="16" col-span="1" vsize-policy="6" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="50"/>
           </grid>
         </constraints>
@@ -26,10 +18,46 @@
       </component>
       <component id="28cdc" class="javax.swing.JLabel" binding="lblAlarmsHms">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <text value="Alarms:"/>
+        </properties>
+      </component>
+      <component id="93af9" class="javax.swing.JButton" binding="btnStartWatch">
+        <constraints>
+          <grid row="15" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="172" height="30"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="Start"/>
+        </properties>
+      </component>
+      <component id="82633" class="javax.swing.JButton" binding="btnPauseWatch">
+        <constraints>
+          <grid row="16" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="172" height="30"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="Pause"/>
+        </properties>
+      </component>
+      <component id="c3735" class="javax.swing.JButton" binding="btnResumeWatch">
+        <constraints>
+          <grid row="17" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Resume"/>
+        </properties>
+      </component>
+      <component id="5c601" class="javax.swing.JLabel" binding="lblWatchHMS">
+        <constraints>
+          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value=""/>
         </properties>
       </component>
       <component id="ba772" class="javax.swing.JLabel" binding="lblWatchHM">
@@ -40,120 +68,58 @@
           <text value=""/>
         </properties>
       </component>
-      <component id="6d1c7" class="javax.swing.JTable" binding="tblAlarmsHm">
+      <component id="90ae3" class="javax.swing.JTextField" binding="textField1" default-binding="true">
         <constraints>
-          <grid row="2" column="0" row-span="15" col-span="1" vsize-policy="6" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="50"/>
+          <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <text value=""/>
+        </properties>
       </component>
-      <component id="93af9" class="javax.swing.JButton" binding="btnStartWatch">
+      <component id="ef005" class="javax.swing.JTextField" binding="textField2" default-binding="true">
         <constraints>
-          <grid row="14" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false">
+          <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="150" height="-1"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value=""/>
+        </properties>
+      </component>
+      <component id="59345" class="javax.swing.JButton" binding="btnAddAlarm">
+        <constraints>
+          <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="172" height="30"/>
           </grid>
         </constraints>
         <properties>
-          <text value="Start"/>
+          <text value="Add alarm"/>
         </properties>
       </component>
-      <component id="82633" class="javax.swing.JButton" binding="btnPauseWatch">
+      <component id="20ad8" class="javax.swing.JLabel">
         <constraints>
-          <grid row="15" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="172" height="30"/>
-          </grid>
+          <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Pause"/>
+          <text value="Hours:"/>
         </properties>
       </component>
-      <component id="c3735" class="javax.swing.JButton" binding="btnResumeWatch">
+      <component id="89921" class="javax.swing.JLabel" binding="lblAddAlrm">
         <constraints>
-          <grid row="16" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="2" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Resume"/>
+          <text value="Add Alarm:"/>
         </properties>
       </component>
-      <component id="18961" class="javax.swing.JLabel" binding="lblAlarmsHm">
+      <component id="58250" class="javax.swing.JLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Alarms:"/>
-        </properties>
-      </component>
-      <component id="454ed" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="HM clock:"/>
-        </properties>
-      </component>
-      <component id="ee9db" class="javax.swing.JLabel" binding="lblMoveClock">
-        <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Move clocks:"/>
-        </properties>
-      </component>
-      <component id="53bf3" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="HMS clock:"/>
-        </properties>
-      </component>
-      <component id="aae72" class="javax.swing.JButton" binding="a1HourButton">
-        <constraints>
-          <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="+ 1 hour"/>
-        </properties>
-      </component>
-      <component id="12760" class="javax.swing.JButton" binding="a10secButton">
-        <constraints>
-          <grid row="6" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="+ 10 sec"/>
-        </properties>
-      </component>
-      <component id="bc1a0" class="javax.swing.JButton" binding="a1minButtonHMS">
-        <constraints>
-          <grid row="7" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="+ 1 min"/>
-        </properties>
-      </component>
-      <component id="4d1d" class="javax.swing.JButton" binding="a1hourButtonHMS">
-        <constraints>
-          <grid row="8" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="+ 1 hour"/>
-        </properties>
-      </component>
-      <component id="d44c9" class="javax.swing.JButton" binding="a1MinButton" default-binding="true">
-        <constraints>
-          <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="+ 1 min"/>
-        </properties>
-      </component>
-      <component id="d9f33" class="javax.swing.JLabel">
-        <constraints>
-          <grid row="11" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <text value="Manage clocks:"/>
+          <text value="Minutes:"/>
         </properties>
       </component>
     </children>
