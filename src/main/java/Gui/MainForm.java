@@ -9,9 +9,9 @@ import com.google.gson.GsonBuilder;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -42,7 +42,6 @@ public class MainForm extends JFrame{
     private JTextField textField2;
     private JButton btnAddAlarm;
     private JLabel lblAddAlrm;
-    Thread showMessageThread = null;
 
     {
         lblWatchHM.setFont(new Font("Serif", Font.BOLD, 30));
@@ -75,18 +74,14 @@ public class MainForm extends JFrame{
                                 lblWatchHM.setText(msg.getTime().substring(0, msg.getTime().lastIndexOf(':')));
                                 lblWatchHMS.setText(msg.getTime());
                             } else if(msg.getCommand().equals("alarm")) {
-                                if(showMessageThread == null) {
-                                    showMessageThread = new Thread(new Runnable() {
-                                        public void run() {
-                                            JOptionPane.showConfirmDialog(null,
-                                                    "Будильник сработал", "Будильник", JOptionPane.DEFAULT_OPTION);
-                                            showMessageThread = null;
-                                        }
-                                    });
-                                    showMessageThread.start();
-                                }
+                                Thread thread = new Thread(new Runnable() {
+                                    public void run() {
+                                        JOptionPane.showConfirmDialog(null,
+                                                "Будильник сработал", "Будильник", JOptionPane.DEFAULT_OPTION);
+                                    }
+                                });
+                                thread.start();
                             }
-
                         }
                     } catch (IOException exception) {
                         exception.printStackTrace();
@@ -176,6 +171,43 @@ public class MainForm extends JFrame{
                 } catch (IOException exception) {
                     exception.printStackTrace();
                 }
+            }
+        });
+        tblAlarms.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+        });
+        tblAlarms.addComponentListener(new ComponentAdapter() {
+        });
+        tblAlarms.addContainerListener(new ContainerAdapter() {
+        });
+        tblAlarms.addFocusListener(new FocusAdapter() {
+        });
+        tblAlarms.addMouseListener(new MouseAdapter() {
+        });
+        tblAlarms.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int index = tblAlarms.getSelectedRow();
+                TableModel model = tblAlarms.getModel();
+                String alarm = (String) model.getValueAt(index, 0);
+                String hours = alarm.substring(0, 2);
+                String minutes = "";
+                if(alarm.charAt(3) == '0') {
+                    minutes = alarm.substring(4, 5);
+                } else {
+                    minutes = alarm.substring(3, 5);
+                }
+
+                Msg msg = new Msg("delete", hours, minutes);
+                try {
+                    os.writeUTF(gson.toJson(msg));
+                } catch (IOException exception) {
+                    exception.printStackTrace();
+                }
+                ((DefaultTableModel)tblAlarms.getModel()).removeRow(index);
             }
         });
     }

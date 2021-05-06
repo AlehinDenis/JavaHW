@@ -1,6 +1,7 @@
 package Server;
 
 import AlarmClock.AlarmClock;
+import DB.Database;
 import Exceptions.Unsupported;
 import Watch.IWatch;
 import Watch.WatchHmsManager;
@@ -16,14 +17,20 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class WCS extends Thread implements WatchEvent {
+    static int countWCS = 0;
+    static int currentAlarm = -1;
     Socket cs;
     DataInputStream is;
     DataOutputStream os;
     Msg msg;
     WatchHmsManager watch;
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    Database db;
 
     public WCS(Socket cs, WatchHmsManager watch) {
+        countWCS++;
+        db = new Database();
+        db.connect();
         this.cs = cs;
         this.watch = watch;
         try {
@@ -33,6 +40,14 @@ public class WCS extends Thread implements WatchEvent {
         }
         watch.subscribe(this);
         this.start();
+        Msg msg = new Msg("time",
+                12 + ":" + 0 + ":" + 0,
+                db.getAlarms());
+        try {
+            os.writeUTF(gson.toJson(msg, Msg.class));
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
@@ -44,16 +59,18 @@ public class WCS extends Thread implements WatchEvent {
                 String obj = is.readUTF();
                 msg = gson.fromJson(obj, Msg.class);
                 if(msg.getCommand().equals("alarm")) {
-                    watch.addAlarmClock(Integer.parseInt(msg.getAlarmHour()),
-                            Integer.parseInt(msg.getAlarmMin()));
+                    db.addAlarm(
+                            msg.getAlarmHour(),
+                            msg.getAlarmMin());
                 } else if(msg.getCommand().equals("start")) {
                     watch.start();
                 } else if(msg.getCommand().equals("pause")) {
                     watch.pause();
                 } else if(msg.getCommand().equals("resume")) {
                     watch.resume();
+                } else if(msg.getCommand().equals("delete")) {
+                    db.deleteAlarm(msg.getAlarmHour(), msg.getAlarmMin());
                 }
-
             }
 
         } catch (IOException exception) {
@@ -61,11 +78,22 @@ public class WCS extends Thread implements WatchEvent {
         }
     }
     public void event(IWatch w) {
-        Vector<AlarmClock> alarms = watch.getAlarms();
+        Vector<AlarmClock> alarms = db.getAlarms();
         for(int i = 0; i < alarms.size(); i++) {
             if(alarms.get(i).isTriggered(w.getHours(), w.getMinutes())) {
-                Msg msg = new Msg("alarm");
                 try {
+                    if(currentAlarm == -1) {
+                        currentAlarm = countWCS;
+                    }
+                    if(currentAlarm == 1) {
+                        db.deleteAlarm(Integer.toString(w.getHours()),
+                                Integer.toString(w.getMinutes()));
+                        currentAlarm = -1;
+                    } else {
+                        currentAlarm--;
+                    }
+
+                    Msg msg = new Msg("alarm");
                     os.writeUTF(gson.toJson(msg, Msg.class));
                 } catch (IOException exception) {
                     exception.printStackTrace();
@@ -76,7 +104,7 @@ public class WCS extends Thread implements WatchEvent {
         try {
             Msg msg = new Msg("time",
                     w.getHours() + ":" + w.getMinutes() + ":" + w.getSeconds(),
-                    watch.getAlarms());
+                    db.getAlarms());
             os.writeUTF(gson.toJson(msg, Msg.class));
         } catch (Unsupported unsupported) {
             unsupported.printStackTrace();

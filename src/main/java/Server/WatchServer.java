@@ -16,7 +16,7 @@ import java.sql.SQLOutput;
 public class WatchServer {
     int port = 3124;
     InetAddress host;
-    WatchHmsManager watch = new WatchHmsManager(12,0,0);
+    WatchHmsManager watch = new WatchHmsManager(12,0,55);
 
     public WatchServer() {
         try {
